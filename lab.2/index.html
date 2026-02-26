@@ -2,120 +2,66 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة المعدل - Lab 2</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; direction: rtl; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; margin-bottom: 25px; }
-        .input-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        button { background-color: #3498db; color: white; border: none; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        button:hover { background-color: #2980b9; }
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th, td { border: 1px solid #eee; padding: 15px; text-align: center; }
-        th { background-color: #34495e; color: white; }
-        .calc-btn { background-color: #27ae60; width: 100%; margin-top: 20px; font-size: 18px; }
-        .calc-btn:hover { background-color: #219150; }
-        #resultArea { margin-top: 25px; padding: 20px; border-radius: 10px; background-color: #f9f9f9; display: none; }
-        .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .progress-bar { height: 25px; width: 0%; transition: width 0.5s, background-color 0.5s; }
+        body { font-family: Arial, sans-serif; background: #eef2f3; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        h2 { color: #333; }
+        .input-row { display: flex; gap: 5px; margin-bottom: 15px; }
+        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        input { flex: 2; }
+        select { flex: 1; }
+        button { background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #219150; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #34495e; color: white; }
+        #final-res { margin-top: 20px; font-size: 1.2em; font-weight: bold; color: #2c3e50; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>حاسبة المعدل التراكمي (GPA)</h2>
-        <div class="input-group">
-            <input type="text" id="cName" placeholder="اسم المادة">
-            <input type="number" id="cCredits" placeholder="الساعات" min="1" style="width: 80px;">
-            <select id="cGrade">
-                <option value="4.0">A/A+ (4.0)</option>
-                <option value="3.0">B (3.0)</option>
-                <option value="2.0">C (2.0)</option>
-                <option value="1.0">D (1.0)</option>
-                <option value="0.0">F (0.0)</option>
-            </select>
-            <button onclick="addCourse()">إضافة مادة</button>
-        </div>
 
-        <table id="courseTable">
-            <thead>
-                <tr>
-                    <th>المادة</th>
-                    <th>الساعات</th>
-                    <th>النقاط</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <button class="calc-btn" onclick="calculateGPA()">احسب المعدل النهائي</button>
-
-        <div id="resultArea">
-            <h3 id="gpaText"></h3>
-            <div class="progress-container">
-                <div id="gpaBar" class="progress-bar"></div>
-            </div>
-            <p id="statusText" style="margin-top: 10px; font-weight: bold;"></p>
-        </div>
+<div class="card">
+    <h2>حاسبة المعدل (GPA)</h2>
+    <div class="input-row">
+        <input type="text" id="course" placeholder="المادة">
+        <input type="number" id="hrs" placeholder="ساعات" style="width: 50px;">
+        <select id="grd">
+            <option value="4">A (4.0)</option>
+            <option value="3">B (3.0)</option>
+            <option value="2">C (2.0)</option>
+            <option value="1">D (1.0)</option>
+            <option value="0">F (0.0)</option>
+        </select>
+        <button onclick="addRow()">أضف</button>
     </div>
 
-    <script>
-        let courses = [];
+    <table id="tbl">
+        <thead>
+            <tr><th>المادة</th><th>ساعات</th><th>نقاط</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-        function addCourse() {
-            const name = document.getElementById('cName').value;
-            const credit = parseFloat(document.getElementById('cCredits').value);
-            const grade = parseFloat(document.getElementById('cGrade').value);
+    <button onclick="calc()" style="width:100%; margin-top:15px; background:#2980b9;">احسب المعدل النهائي</button>
+    <div id="final-res"></div>
+</div>
 
-            if (name && credit >= 1) {
-                courses.push({ name, credit, grade });
-                const tbody = document.querySelector('#courseTable tbody');
-                tbody.innerHTML += `<tr><td>${name}</td><td>${credit}</td><td>${grade}</td></tr>`;
-                
-                // تنظيف الحقول
-                document.getElementById('cName').value = "";
-                document.getElementById('cCredits').value = "";
-            } else {
-                alert("الرجاء إدخال اسم المادة وعدد ساعات صحيح");
-            }
-        }
+<script>
+    let data = [];
+    function addRow() {
+        let c = document.getElementById('course').value;
+        let h = parseFloat(document.getElementById('hrs').value);
+        let g = parseFloat(document.getElementById('grd').value);
+        if(c && h > 0) {
+            data.push({h, g});
+            let b = document.querySelector('#tbl tbody');
+            b.innerHTML += `<tr><td>${c}</td><td>${h}</td><td>${g}</td></tr>`;
+            document.getElementById('course').value = '';
+            document.getElementById('hrs').value = '';
+        } else { alert("أدخل البيانات صح!"); }
+    }
 
-        function calculateGPA() {
-            if (courses.length === 0) return alert("أضف مواد أولاً");
-
-            let totalPoints = 0, totalCredits = 0;
-            courses.forEach(c => {
-                totalPoints += (c.grade * c.credit);
-                totalCredits += c.credit;
-            });
-
-            const gpa = totalPoints / totalCredits;
-            const resultArea = document.getElementById('resultArea');
-            const gpaText = document.getElementById('gpaText');
-            const gpaBar = document.getElementById('gpaBar');
-            const statusText = document.getElementById('statusText');
-
-            resultArea.style.display = "block";
-            gpaText.innerText = "المعدل: " + gpa.toFixed(2);
-            
-            // حساب النسبة للشريط (بناءً على 4.0)
-            let percentage = (gpa / 4) * 100;
-            gpaBar.style.width = percentage + "%";
-
-            if (gpa >= 3.7) {
-                statusText.innerText = "التقدير: Distinction (امتياز)";
-                gpaBar.style.backgroundColor = "#27ae60";
-            } else if (gpa >= 3.0) {
-                statusText.innerText = "التقدير: Merit (جيد جداً)";
-                gpaBar.style.backgroundColor = "#2980b9";
-            } else if (gpa >= 2.0) {
-                statusText.innerText = "التقدير: Pass (مقبول)";
-                gpaBar.style.backgroundColor = "#f1c40f";
-            } else {
-                statusText.innerText = "التقدير: Fail (راسب)";
-                gpaBar.style.backgroundColor = "#e74c3c";
-            }
-        }
-    </script>
-</body>
-</html>
+    function calc() {
+        if(data.length === 0) return;
