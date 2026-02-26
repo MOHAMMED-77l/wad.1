@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة المعدل - Lab 2</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f3; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        h2 { color: #333; }
+        .input-row { display: flex; gap: 5px; margin-bottom: 15px; }
+        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        input { flex: 2; }
+        select { flex: 1; }
+        button { background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #219150; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #34495e; color: white; }
+        #final-res { margin-top: 20px; font-size: 1.2em; font-weight: bold; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>حاسبة المعدل (GPA)</h2>
+    <div class="input-row">
+        <input type="text" id="course" placeholder="المادة">
+        <input type="number" id="hrs" placeholder="ساعات" style="width: 50px;">
+        <select id="grd">
+            <option value="4">A (4.0)</option>
+            <option value="3">B (3.0)</option>
+            <option value="2">C (2.0)</option>
+            <option value="1">D (1.0)</option>
+            <option value="0">F (0.0)</option>
+        </select>
+        <button onclick="addRow()">أضف</button>
+    </div>
+
+    <table id="tbl">
+        <thead>
+            <tr><th>المادة</th><th>ساعات</th><th>نقاط</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button onclick="calc()" style="width:100%; margin-top:15px; background:#2980b9;">احسب المعدل النهائي</button>
+    <div id="final-res"></div>
+</div>
+
+<script>
+    let data = [];
+    function addRow() {
+        let c = document.getElementById('course').value;
+        let h = parseFloat(document.getElementById('hrs').value);
+        let g = parseFloat(document.getElementById('grd').value);
+        if(c && h > 0) {
+            data.push({h, g});
+            let b = document.querySelector('#tbl tbody');
+            b.innerHTML += `<tr><td>${c}</td><td>${h}</td><td>${g}</td></tr>`;
+            document.getElementById('course').value = '';
+            document.getElementById('hrs').value = '';
+        } else { alert("أدخل البيانات صح!"); }
+    }
+
+    function calc() {
+        if(data.length === 0) return;
+        let tP = 0, tH = 0;
+        data.forEach(item => { tP += (item.g * item.h); tH += item.h; });
+        let res = tP / tH;
+        let msg = res >= 3.7 ? "امتياز (Distinction)" : res >= 3.0 ? "جيد جداً (Merit)" : res >= 2.0 ? "مقبول (Pass)" : "راسب (Fail)";
+        document.getElementById('final-res').innerHTML = `معدلك: ${res.toFixed(2)} <br> <span style="color:#16a085">${msg}</span>`;
+    }
+</script>
+
+</body>
+</html>
